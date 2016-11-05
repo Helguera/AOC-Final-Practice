@@ -1,19 +1,47 @@
 .data
 dias:	.byte	0,31,28,31,30,31,30,31,31,30,31,30,31
 temp:	.word 	0
+primera:.word 	0
+seg_dir:.word	0
 	.globl __start
 	.text
 __start:
-	add $s0,$zero, 5
+	add $s0,$zero, 2
 	add $s1,$zero, 2
 	add $s2,$zero, 2000
 
-	add $s3,$zero, 9
-	add $s4,$zero, 3
-	add $s5,$zero, 2000
+	add $s3,$zero, 5
+	add $s4,$zero, 2
+	add $s5,$zero, 2001
 	
-	jal calculo	
+	sub $t0, $s5, $s2
+	beq $t0, 0, correcto1
+	slti $t1, $t0, 0
+	bne $t1, 1, guardar_
+	jal cambio
+guardar_:jal guardar 
+primero:add $s3, $zero, 31
+	add $s4, $zero, 12
+	add $s5, $zero, $s2
+	add $t3,$zero,0
+	j correcto
 	
+segundo:move $t4,$s7
+	add $t4,$t4,1
+	la $a0, seg_dir
+	lw $s3,0($a0)
+	lw $s4,4($a0)
+	lw $s5,8($a0)
+	add $s0, $zero, 1
+	add $s1, $zero, 1
+	add $s2, $zero, $s5
+
+
+correcto1:add $t3,$zero,2
+correcto:jal calculo	
+	
+	beq $t3,0,segundo
+	add $s7,$s7,$t4
 	move $a0, $s7
 	li $v0,1
 	syscall
@@ -87,4 +115,24 @@ segunda:div $t7,$s2, 400
 si:	add $s7, $s7,1
 no:	jr $ra
 #---------------------------------------------
-	
+cambio:	la $a0, temp
+	sw $s0,0($a0)
+	sw $s1,4($a0)
+	sw $s2,8($a0)
+	move $s0,$s3
+	move $s1, $s4
+	move $s2, $s5
+	lw $s3,0($a0)
+	lw $s4,4($a0)
+	lw $s5,8($a0)
+	jr $ra
+#---------------------------------------------
+guardar:la $a0, primera
+	sw $s0,0($a0)
+	sw $s1,4($a0)
+	sw $s2,8($a0)
+	la $a0, seg_dir
+	sw $s3,0($a0)
+	sw $s4,4($a0)
+	sw $s5,8($a0)
+	jr $ra
