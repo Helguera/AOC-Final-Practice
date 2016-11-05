@@ -7,11 +7,11 @@ seg_dir:.word	0
 	.text
 __start:
 	add $s0,$zero, 3	# Primera fecha
-	add $s1,$zero,2
+	add $s1,$zero,3
 	add $s2,$zero, 2000	
 
 	add $s3,$zero, 4	# Segunda fecha
-	add $s4,$zero, 3
+	add $s4,$zero, 2
 	add $s5,$zero, 2001
 	
 	sub $t0, $s5, $s2	# t0 = 2año - 1año
@@ -116,6 +116,13 @@ segunda:div $t7,$s2, 400
 	mfhi $t5
 	bne $t5, 0, no		# Si es divisible entre 400, no es bisiesto
 	
+	
+	#######################################################
+	# Esto funciona: bisiesto la fecha menor pero ya ha pasado el 29F
+	# Esto Falla(da un día de mas): bisiesto la fecha MAYOR, pero aun no ha llegado el 29F
+	slti $t9, $s1, 3	# $t9 = 1 si  no ha llegado a marzo = feb tiene un dia mas
+	beq $t9, 0, no
+	#######################################################
 si:	add $s7, $s7,1		# Si es divisible entre 400, se le suma un dia
 no:	jr $ra
 #---------------------------------------------
