@@ -4,13 +4,13 @@ temp:	.word 	0
 	.globl __start
 	.text
 __start:
-	add $s0,$zero, 17
-	add $s1,$zero, 8
-	add $s2,$zero, 2015
+	add $s0,$zero, 5
+	add $s1,$zero, 2
+	add $s2,$zero, 2000
 
-	add $s3,$zero, 2
-	add $s4,$zero, 4
-	add $s5,$zero, 2015
+	add $s3,$zero, 9
+	add $s4,$zero, 3
+	add $s5,$zero, 2000
 	
 	jal calculo	
 	
@@ -25,7 +25,9 @@ __start:
 
 	
 #------------------------------------------------------------
-calculo:sub $t1, $s1, $s4
+calculo:addi $sp,$sp,-4
+	sw $ra,0($sp)	
+	sub $t1, $s1, $s4
 	slt $t2, $s1, $s4
 	beq $t1,0, comprueba_dia
 	beq $t2,0,cambia_todo
@@ -66,11 +68,23 @@ bucle:	lb $t0,0($a0)
 	sub $t0, $t0,$s3
 	sub $s7, $s7, $t0
 	
-salir:	jr $ra
-#---------------------------------------------
-bisiesto:la $a0, dias
-	add $t7,$t7,29
-	sb $t7,2($a0)
+salir:	jal bisiesto
+	lw $ra,0($sp)
+	add $sp,$sp,4
 	jr $ra
+#---------------------------------------------
+bisiesto:div $t7,$s2,4
+	mfhi $t5
+	div $t7,$s2,10
+	mfhi $t6
+	beq $t5,0,puede
+	j segunda
+puede:	bne $t6,0,si
+segunda:div $t7,$s2, 400
+	mfhi $t5
+	bne $t5, 0, no
+	
+si:	add $s7, $s7,1
+no:	jr $ra
 #---------------------------------------------
 	
