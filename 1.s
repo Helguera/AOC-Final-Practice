@@ -1,19 +1,48 @@
 .data
-dias:	.byte	0,31,28,31,30,31,30,31,31,30,31,30,31
+dias:	.byte	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 temp:	.word 	0
-primera:.word 	0
+pri_dir:.word 	0
 seg_dir:.word	0
 mem_todo:.word 0
+entrada1: .byte 0
+entrada2: .byte 0
+
+str1:	.asciiz "Introduce la primera fecha (dd/mm/aaaa): "
+str2:	.asciiz "Introduce la segunda fecha (dd/mm/aaaa): "
 	.globl __start
 	.text
 __start:
-	add $s0,$zero, 19	# Primera fecha
-	add $s1,$zero,10
-	add $s2,$zero, 1970
+	#la $a0, str1
+	#li $v0,4
+	#syscall
+	#li $v0, 8
+	#la $a0, entrada1
+	#syscall
+	
+	#la $a0, str2
+#	li $v0,4
+#	syscall
+#	li $v0, 8
+#	la $a0, entrada2
+#	syscall
+	
+#	jal tomar_entrada
+	
 
-	add $s3,$zero, 2	# Segunda fecha
-	add $s4,$zero, 2
-	add $s5,$zero, 2001
+
+
+
+
+
+
+	add $s0,$zero, 12	# Primera fecha
+	add $s1,$zero,10
+	add $s2,$zero,1600
+	
+
+	add $s3,$zero, 13	# Segunda fecha
+	add $s4,$zero, 10
+	add $s5,$zero,2001
 	
 	
 	
@@ -25,7 +54,7 @@ __start:
 	jal cambio		# Si 2a�o < 1a�o (hacia atras en el tiempo) invierte sus valores
 	
 guardar_:
-	jal guardar 		# Guarda en memoria 'primera' la primera fecha y en 'seg_dir' la segunda fecha
+	jal guardar 		# Guarda en memoria 'pri_dir' la pri_dir fecha y en 'seg_dir' la segunda fecha
 
 primero:add $s3, $zero, 31	# s3/s5 carga 31dic del a�o la fecha menor
 	add $s4, $zero, 12
@@ -134,14 +163,14 @@ salir:	jal bisiesto
 #---------------------------------------------
 bisiesto:div $t7,$s2,4		# $t7 = a�opeque�o / 4
 	mfhi $t5		# $t5 = a�opeque�o % 4
-	div $t7,$s2,10		# $t7 = a�opeque�o / 10
+	div $t7,$s2,100		# $t7 = a�opeque�o / 10
 	mfhi $t6		# $t6 = a�opeque�o % 10
 	beq $t5,0,puede		# $t5 = 0: Puede ser bisiesto
 	j segunda		
 puede:	bne $t6,0,si
 segunda:div $t7,$s2, 400	
 	mfhi $t5
-	bne $t5, 0, no		# Si es divisible entre 400, no es bisiesto
+	bne $t5, 0, no		# Si es divisible entre 400, es bisiesto
 	
 	
 	#######################################################
@@ -165,7 +194,7 @@ cambio:	la $a0, temp
 	lw $s5,8($a0)
 	jr $ra
 #---------------------------------------------
-guardar:la $a0, primera
+guardar:la $a0, pri_dir
 	sw $s0,0($a0)
 	sw $s1,4($a0)
 	sw $s2,8($a0)
@@ -183,7 +212,7 @@ guardar_anio:
 #---------------------------------------------
 bisiestoTF:div $t7,$s2,4		# $t7 = a�opeque�o / 4
 	mfhi $t5		# $t5 = a�opeque�o % 4
-	div $t7,$s2,10		# $t7 = a�opeque�o / 10
+	div $t7,$s2,100		# $t7 = a�opeque�o / 10
 	mfhi $t6		# $t6 = a�opeque�o % 10
 	beq $t5,0,puedeTF	# $t5 = 0: Puede ser bisiesto
 	j segundaTF		
@@ -196,10 +225,32 @@ segundaTF:div $t7,$s2, 400
 	#######################################################
 	# Esto funciona: bisiesto la fecha menor pero ya ha pasado el 29F
 	# Esto Falla(da un d�a de mas): bisiesto la fecha MAYOR, pero aun no ha llegado el 29F
-	slti $t9, $s1, 3	# $t9 = 1 si  no ha llegado a marzo = feb tiene un dia mas
-	beq $t9, 0, noTF
+	#slti $t9, $s1, 3	# $t9 = 1 si  no ha llegado a marzo = feb tiene un dia mas
+	#beq $t9, 0, noTF
 	#######################################################
 siTF:	add $s7, $s7,366		# Si es divisible entre 400, se le suma un dia
 	jr $ra
 noTF:	add $s7,$s7,365
 	jr $ra
+#----------------------------------------------
+#tomar_entrada:
+#	la $a0, entrada1
+#	add $t7, $zero, 0
+#	add $t1, $t1, 0
+#	la $a1, temp
+#guardar_entrada:
+#	sw $t7,0($a1)
+#	add $a1,$a1,1
+#	add $t7,$zero,0
+#bucle_entrada:
+#	lb $t0,0($a0)
+#	add $a0,$a0,1
+#	beq $t0,47, guardar_entrada
+#	beq $t0, 10, salir_entrada
+#	mul $t7,$t7,10
+#	add $t7,$t7,$t0
+#	j no
+	
+
+	
+	 
