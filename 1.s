@@ -1,3 +1,6 @@
+#Programa creado por Javier Helguera y Alvaro Velasco
+#Calcula los dias pasados entre dos fechas
+
 .data
 dias:	.byte	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 temp:	.word 	0
@@ -8,10 +11,11 @@ entrada1: .space 100
 entrada2: .space 100
 temp2:	.space 100
 
-str1:	.asciiz "Introduce la primera fecha (dd/mm/aaaa): "
-str2:	.asciiz "Introduce la segunda fecha (dd/mm/aaaa): "
+str1:	.asciiz "Introduce la primera fecha: "
+str2:	.asciiz "Introduce la segunda fecha: "
 str3:	.asciiz "Entre las dos fechas hay "
 str4:	.asciiz " dias"
+str5:	.asciiz "Ha introducido una fecha no valida"
 	.globl __start
 	.text
 __start:
@@ -41,11 +45,12 @@ __start:
 	
 	jal tomar_entrada
 	
-	
 	la $a0, temp2
 	lw $s3,0($a0)
 	lw $s4,4($a0)
 	lw $s5,8($a0)
+	
+	jal comprobacion
 	
 	sub $t0, $s5, $s2	# t0 = 2a�o - 1a�o
 	beq $t0, 0, correcto1	# correcto1 si esta en el mismo a�o
@@ -179,14 +184,8 @@ puede:	bne $t6,0,si
 segunda:div $t7,$s2, 400	
 	mfhi $t5
 	bne $t5, 0, no		# Si es divisible entre 400, es bisiesto
-	
-	
-	#######################################################
-	# Esto funciona: bisiesto la fecha menor pero ya ha pasado el 29F
-	# Esto Falla(da un d�a de mas): bisiesto la fecha MAYOR, pero aun no ha llegado el 29F
 	slti $t9, $s1, 3	# $t9 = 1 si  no ha llegado a marzo = feb tiene un dia mas
 	beq $t9, 0, no
-	#######################################################
 si:	add $s7, $s7,1		# Si es divisible entre 400, se le suma un dia
 no:	jr $ra
 #---------------------------------------------
@@ -260,5 +259,37 @@ bucle_entrada:
 salir_entrada:
 	sw $t7,0($a1)
 	jr $ra
+#----------------------------------------------
+comprobacion:
+	slti $t9,$s0,1
+	beq $t9,1,incorrecto
+	slti $t9,$s3,1
+	beq $t9,1,incorrecto
+	slti $t9,$s1,1
+	beq $t9,1,incorrecto
+	slti $t9,$s4,1
+	beq $t9,1,incorrecto
+	slti $t9,$s1,13
+	bne $t9,1,incorrecto
+	slti $t9,$s4,13
+	bne $t9,1,incorrecto
 	
+	la $a0, dias
+	add $a0, $a0, $s1
+	lb $t0, 0($a0)
+	slt $t9,$t0,$s0
+	beq $t9,1,incorrecto
+	la $a0, dias
+	add $a0, $a0, $s4
+	lb $t0, 0($a0)
+	slt $t9,$t0,$s3
+	beq $t9,1,incorrecto
+	jr $ra
+
+incorrecto:
+	la $a0, str5
+	li $v0,4
+	syscall
+	li $v0,10
+	syscall
 	 
