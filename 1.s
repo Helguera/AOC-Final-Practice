@@ -10,6 +10,7 @@ mem_todo:.word 0
 entrada1: .space 100
 entrada2: .space 100
 temp2:	.space 100
+semana:	.asciiz "Viernes    Sabado     Domingo    Lunes      Martes     Miercoles  Jueves     "
 
 str1:	.asciiz "Introduce la primera fecha: "
 str2:	.asciiz "Introduce la segunda fecha: "
@@ -37,11 +38,12 @@ __start:
 	
 	jal tomar_entrada
 	
+	add $t1,$t1,1
 	la $a0, temp2
 	lw $s0,0($a0)
 	lw $s1,4($a0)
 	lw $s2,8($a0)
-	add $t1,$t1,1
+	
 	
 	jal tomar_entrada
 	
@@ -51,7 +53,8 @@ __start:
 	lw $s5,8($a0)
 	
 	jal comprobacion
-	
+
+comienzo:		
 	sub $t0, $s5, $s2	# t0 = 2a�o - 1a�o
 	beq $t0, 0, correcto1	# correcto1 si esta en el mismo a�o
 	
@@ -104,10 +107,17 @@ bucle_imprimir:
 	add $t3,$t3,1
 	jal bisiestoTF
 	bne $t3,$t0,bucle_imprimir
+#--------------- Aqui acaba el primer ejercicio $s7=resultado ---------------------	
+
 	
+
+
+
 
 	
 imprimir:
+	beq $t8,1,ej2
+	add $t8, $zero,1
 	la $a0, str3
 	li $v0,4
 	syscall
@@ -117,9 +127,22 @@ imprimir:
 	la $a0, str4
 	li $v0,4
 	syscall
+
+		
+ej2:	add $s0,$zero,15
+	add $s1,$zero,10
+	add $s2,$zero,1582
+	
+	j comienzo
+	
+	
 	
 	li $v0,10
 	syscall
+	
+	
+	
+	
 	
 
 
@@ -131,6 +154,7 @@ calculo:addi $sp,$sp,-4		# 1er bucle: Guarda la posicion de memoria para luego p
 	slt $t2, $s1, $s4	# 1er bucle: $t2 = 1 si la fecha no es diciembre
 	beq $t1,0, comprueba_dia# 1er bucle: Si es diciembre, se compueba el d�a
 	beq $t2,0,cambia_todo	# 1er bucle: Si es diciembre, cambia_todo (AQUI NO LLEGA)
+	j inicio
 	
 comprueba_dia:			
 	slt $t1, $s0, $s3	# 1er bucle: $t1 = 1 si el dia es menor que 31
@@ -292,4 +316,3 @@ incorrecto:
 	syscall
 	li $v0,10
 	syscall
-	 
