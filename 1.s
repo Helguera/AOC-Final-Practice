@@ -11,7 +11,7 @@ entrada1: .space 100
 entrada2: .space 100
 temp2:	.space 100
 semana:	.asciiz "Viernes    Sabado     Domingo    Lunes      Martes     Miercoles  Jueves     "
-
+meses:	.asciiz "Enero      Febrero    Marzo      Abril      Mayo       Junio      Julio      Agosto     Septiembre Octubre    Noviembre  Diciembre  "
 str1:	.asciiz "Introduce la primera fecha: "
 str2:	.asciiz "Introduce la segunda fecha: "
 str3:	.asciiz "Entre las dos fechas hay "
@@ -128,12 +128,14 @@ imprimir:
 	li $v0,4
 	syscall
 
-		
+
+#-------------- EJERCICIO 2 -------------------------
 ej2:	add $s0,$zero,15
 	add $s1,$zero,10
 	add $s2,$zero,1582
 	
 	j comienzo
+	
 	
 	
 	
