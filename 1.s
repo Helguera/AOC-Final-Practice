@@ -3,6 +3,7 @@
 
 .data
 dias:	.byte	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+semana:	.asciiz "Viernes    Sabado     Domingo    Lunes      Martes     Miercoles  Jueves     Enero      Febrero    Marzo      Abril      Mayo       Junio      Julio      Agosto     Septiembre Octubre    Noviembre  Diciembre  "
 temp:	.word 	0
 pri_dir:.word 	0
 seg_dir:.word	0
@@ -10,13 +11,14 @@ mem_todo:.word 0
 entrada1: .space 100
 entrada2: .space 100
 temp2:	.space 100
-semana:	.asciiz "Viernes    Sabado     Domingo    Lunes      Martes     Miercoles  Jueves     "
-meses:	.asciiz "Enero      Febrero    Marzo      Abril      Mayo       Junio      Julio      Agosto     Septiembre Octubre    Noviembre  Diciembre  "
 str1:	.asciiz "Introduce la primera fecha: "
 str2:	.asciiz "Introduce la segunda fecha: "
 str3:	.asciiz "Entre las dos fechas hay "
 str4:	.asciiz " dias"
 str5:	.asciiz "Ha introducido una fecha no valida"
+str6: 	.asciiz " de "
+str7:	.asciiz "El calendario del "
+str8:	.asciiz ", que es la fecha mayor, es: "
 	.globl __start
 	.text
 __start:
@@ -116,7 +118,8 @@ bucle_imprimir:
 
 	
 imprimir:
-	beq $t8,1,ej2
+	beq $t8,1,ej2.1
+	beq $t8,2,ej2.2
 	add $t8, $zero,1
 	la $a0, str3
 	li $v0,4
@@ -130,13 +133,16 @@ imprimir:
 
 
 #-------------- EJERCICIO 2 -------------------------
-ej2:	add $s0,$zero,15
+ej2.1:	add $s0,$zero,15
 	add $s1,$zero,10
 	add $s2,$zero,1582
+	add $t8, $t8,1
 	
 	j comienzo
 	
-	
+ej2.2:	div $s7,$s7,7
+	mfhi $s7
+	jal dime_semana_o_mes 
 	
 	
 	li $v0,10
@@ -318,3 +324,55 @@ incorrecto:
 	syscall
 	li $v0,10
 	syscall
+#-----------------------------------------
+dime_semana_o_mes:
+	add $t3, $zero,0
+	li $v0,11
+	add $a0,$zero,10
+	syscall
+	la $a0, str7
+	li $v0,4
+	syscall
+salto_semana_o_mes:
+	add $t5, $zero,$s7	#$s5 es el numero de mes
+	add $t5,$t5,1
+	la $a1, semana
+	sub $t5,$t5,1
+	mul $t5,$t5,11
+	add $a1,$a1,$t5
+bucle_semana_o_mes:
+	lb $a0,0($a1)
+	beq $a0,32,salir_semana_o_mes
+	li $v0,11
+	syscall
+	add $a1,$a1,1
+	j bucle_semana_o_mes
+salir_semana_o_mes:
+	add $t3, $t3,1
+	beq $t3,2,salir_de_ej2
+	li $v0,11
+	add $a0,$zero,32
+	syscall
+	move $a0,$s3
+	li $v0,1
+	syscall
+	la $a0, str6
+	li $v0,4
+	syscall
+	add $s7,$s4,6
+	j salto_semana_o_mes
+salir_de_ej2:
+	la $a0, str6
+	li $v0,4
+	syscall
+	move $a0,$s5
+	li $v0,1
+	syscall
+	la $a0, str8
+	li $v0,4
+	syscall
+	li $v0,11
+	add $a0,$zero,10
+	syscall
+	jr $ra
+#-------------------------------------------
