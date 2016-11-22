@@ -140,20 +140,87 @@ ej2.1:	add $s0,$zero,15
 	
 	j comienzo
 	
-ej2.2:	div $s7,$s7,7
+ej2.2:	add $t0, $zero, $s7 #Guardamos en t0 los dias que han pasado desde el 15/10/1582
+	div $s7,$s7,7
 	mfhi $s7
 	jal dime_semana_o_mes 
-	
-	
+
+#--------------- EJERCICIO 3 ------------------------
+ej3.3:	#En t0 estan los dias que han pasado desde 15/10/1582 a la fecha mayor
+	jal calendario
+
 	li $v0,10
 	syscall
 	
 	
+calendario:
+	sub $t0, $t0, $s3 #Vemos los dias que han pasado al principio del mes
+	div $s7, $t0, 7
+	mfhi $t0
+	sub $t1, $zero, $t0
+	add $t1, $t1, 7
+	la $a1, dias
+	add $a1, $a1, $s4
+	lb $t7, 0($a1) # Guardamos en t7 los dias que puede tener ese mes
+		
 	
+sig0:	beq $t0, 0, sig1
+	add $a0, $zero, 32
+	li $v0 11
+	syscall
+	li $v0 11
+	syscall
+	addi $t0, $t0, -1
+	j sig0
 	
+sig1: 	add $t2, $zero, $zero #t2 sera el contador dia
+	add $t5, $zero, $zero #t5 contador semana
+sig1.1:	beq $t1, 0, sig2
+	add $t2, $t2, 1
+	addi $t1, $t1, -1
+	add $a0, $zero, $t2
+	li $v0, 1
+	syscall
+	add $a0, $zero, 32
+	li $v0 11
+	syscall
+	j sig1.1
 	
+sig2:	add $t5, $zero, $zero
+	add $a0, $zero 10
+	li $v0, 11
+	syscall
+sig2.2:	beq $t2, $t7, finhostias
+	add $t2, $t2, 1
+	add $a0, $zero, $t2
+	li $v0, 1
+	syscall
+	add $a0, $zero, 32
+	li $v0, 11
+	syscall
+	add $t5 $t5 1
+	beq $t5, 7, sig2
+	j sig2.2
 
-
+finhostias:
+	jr $ra
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 #------------------------------------------------------------
 calculo:addi $sp,$sp,-4		# 1er bucle: Guarda la posicion de memoria para luego poder volver a correcto
