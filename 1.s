@@ -158,51 +158,61 @@ calendario:
 	div $s7, $t0, 7
 	mfhi $t0
 	sub $t1, $zero, $t0
-	add $t1, $t1, 7
+	add $t1, $t1, 9
 	la $a1, dias
 	add $a1, $a1, $s4
-	lb $t7, 0($a1) # Guardamos en t7 los dias que puede tener ese mes
-		
+	lb $t7, 0($a1) 		# Guardamos en t7 los dias que puede tener ese mes
+	add $t2, $zero, $zero 	#t2 sera el contador dia
+	add $t5, $zero, $zero 	#t5 contador semana	
 	
 sig0:	beq $t0, 0, sig1
-	add $a0, $zero, 32
+	add $a0, $zero, 32 	#imprimos 2 espacios por cada dia de la semana que no ha empezado el mes
 	li $v0 11
 	syscall
 	li $v0 11
 	syscall
 	addi $t0, $t0, -1
 	j sig0
-	
-sig1: 	add $t2, $zero, $zero #t2 sera el contador dia
-	add $t5, $zero, $zero #t5 contador semana
-sig1.1:	beq $t1, 0, sig2
+		
+sig1:	beq $t1, 0, sig2	#imprimos los dias que quedan de la primera semana
 	add $t2, $t2, 1
 	addi $t1, $t1, -1
-	add $a0, $zero, $t2
+	add $a0, $zero, $t2	
 	li $v0, 1
 	syscall
+	slti $t6, $t2, 10
+	bne $t6, 1, sig1.1
 	add $a0, $zero, 32
 	li $v0 11
 	syscall
-	j sig1.1
+sig1.1:	add $a0, $zero, 32
+	li $v0 11
+	syscall
+	j sig1
 	
-sig2:	add $t5, $zero, $zero
+sig2:	add $t5, $zero, $zero	# imprimios salto de linea = semana nueva
 	add $a0, $zero 10
 	li $v0, 11
 	syscall
-sig2.2:	beq $t2, $t7, finhostias
+sig2.1:	beq $t2, $t7, fin_cal	# Imprimimos el resto de dias del mes
 	add $t2, $t2, 1
 	add $a0, $zero, $t2
 	li $v0, 1
 	syscall
+	slti $t6, $t2, 10
+	bne $t6, 1, sig2.2
+	add $a0, $zero, 32
+	li $v0 11
+	syscall
+sig2.2:
 	add $a0, $zero, 32
 	li $v0, 11
 	syscall
 	add $t5 $t5 1
 	beq $t5, 7, sig2
-	j sig2.2
+	j sig2.1
 
-finhostias:
+fin_cal:
 	jr $ra
 	
 	
