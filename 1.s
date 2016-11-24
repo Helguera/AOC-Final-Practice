@@ -20,6 +20,7 @@ str5:	.asciiz "Ha introducido una fecha no valida"
 str6: 	.asciiz " de "
 str7:	.asciiz "El calendario del "
 str8:	.asciiz ", que es la fecha mayor, es: "
+str9:	.asciiz "L  M  X  J  V  S  D"
 	.globl __start
 	.text
 __start:
@@ -122,6 +123,9 @@ imprimir:
 	beq $t8,1,ej2.1
 	beq $t8,2,ej2.2
 	add $t8, $zero,1
+	add $a0 $zero 10
+	li $v0 11
+	syscall
 	la $a0, str3
 	li $v0,4
 	syscall
@@ -159,19 +163,30 @@ ej3.3:
 	
 	add $s2, $zero, $s5
 	add $s7, $zero, $zero
-	
 	jal bisiesto
-	
 	move $t4, $s7
+	
+	# imprimimos decoracion del calendario
+	add $a0 $zero 10
+	li $v0 11
+	syscall
+	la $a0, str9
+	li $v0,4
+	syscall
+
 	
 	#En t0 estan los dias que han pasado desde 15/10/1582 a la fecha mayor
 	jal calendario
-
+	
+	#Se acabo el programa
 	li $v0,10
 	syscall
 	
-	
+#--------------------------------------------------------------------------------
 calendario:
+	add $a0 $zero 10
+	li $v0 11
+	syscall
 	add $t1, $zero, $zero
 	sub $t0, $t0, $s3 #Vemos los dias que han pasado al principio del mes
 	div $s7, $t0, 7
