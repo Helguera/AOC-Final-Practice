@@ -1,6 +1,7 @@
-#Programa creado por Javier Helguera y Alvaro Velasco
-#Calcula los dias pasados entre dos fechas
-
+# Programa creado por Javier Helguera y Alvaro Velasco
+# Calcula los dias pasados entre dos fechas
+# Dice en forma de texto en que cayo el dia mayor escrito
+# Imprime el calendario de ese mes3
 .data
 dias:	.byte	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 semana:	.asciiz "Viernes    Sabado     Domingo    Lunes      Martes     Miercoles  Jueves     Enero      Febrero    Marzo      Abril      Mayo       Junio      Julio      Agosto     Septiembre Octubre    Noviembre  Diciembre  "
@@ -144,9 +145,26 @@ ej2.2:	add $t0, $zero, $s7 #Guardamos en t0 los dias que han pasado desde el 15/
 	div $s7,$s7,7
 	mfhi $s7
 	jal dime_semana_o_mes 
+	
+	
+	
+	
+	
 
 #--------------- EJERCICIO 3 ------------------------
-ej3.3:	#En t0 estan los dias que han pasado desde 15/10/1582 a la fecha mayor
+ej3.3:	
+	# Pasamos el año a s2, que es el que comprueba en la funcion bisiesto
+	# y ponemos $s7 a 0. Si es bisiesto este año, lo pondrá a 1.
+	# pasamos el resultado de s7 a t4
+	
+	add $s2, $zero, $s5
+	add $s7, $zero, $zero
+	
+	jal bisiesto
+	
+	move $t4, $s7
+	
+	#En t0 estan los dias que han pasado desde 15/10/1582 a la fecha mayor
 	jal calendario
 
 	li $v0,10
@@ -154,19 +172,31 @@ ej3.3:	#En t0 estan los dias que han pasado desde 15/10/1582 a la fecha mayor
 	
 	
 calendario:
+	add $t1, $zero, $zero
 	sub $t0, $t0, $s3 #Vemos los dias que han pasado al principio del mes
 	div $s7, $t0, 7
-	mfhi $t0
-	sub $t1, $zero, $t0
-	add $t1, $t1, 9
+	mfhi $t0		# dia de la semana del primer dia del mes. (0=V, 2=D, 6=J)
+	slti $t3, $t0, 2
+	
+	beq $t3, 0, ajuste	# $t0: L=0; D=6
+	add $t0, $t0, 7
+ajuste: sub $t0, $t0, 2
+	sub $t0, $zero, $t0
+	add $t1, $t0, 7		# $t1: Dias que faltan para acabar la semana
+
+	sub $t0, $zero, $t0
 	la $a1, dias
 	add $a1, $a1, $s4
 	lb $t7, 0($a1) 		# Guardamos en t7 los dias que puede tener ese mes
-	add $t2, $zero, $zero 	#t2 sera el contador dia
+	bne $t7, 28, no_feb	# Si no es febrero saltamos
+	add $t7, $t7, $t4	# Le sumamos un dia si este año es bisiesto, si no lo es, $t4 era 0
+no_feb:	add $t2, $zero, $zero 	#t2 sera el contador dia
 	add $t5, $zero, $zero 	#t5 contador semana	
 	
 sig0:	beq $t0, 0, sig1
 	add $a0, $zero, 32 	#imprimos 2 espacios por cada dia de la semana que no ha empezado el mes
+	li $v0 11
+	syscall
 	li $v0 11
 	syscall
 	li $v0 11
