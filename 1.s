@@ -40,7 +40,7 @@ __start:
 	la $a0, entrada2
 	syscall
 	
-	jal tomar_entrada
+	jal _tomar_entrada
 	
 	add $t1,$t1,1
 	la $a0, temp2
@@ -49,32 +49,30 @@ __start:
 	lw $s2,8($a0)
 	
 	
-	jal tomar_entrada
+	jal _tomar_entrada
 	
 	la $a0, temp2
 	lw $s3,0($a0)
 	lw $s4,4($a0)
 	lw $s5,8($a0)
 	
-	jal comprobacion
+	jal _comprobacion
 
 comienzo:		
-	sub $t0, $s5, $s2	# t0 = 2aï¿½o - 1aï¿½o
-	beq $t0, 0, correcto1	# correcto1 si esta en el mismo aï¿½o
+	sub $t0, $s5, $s2	
+	beq $t0, 0, correcto1	
 	
-	slti $t1, $t0, 0	# t1=0 2aï¿½o>1aï¿½o	t1=1aï¿½o>2aï¿½o
-	bne $t1, 1, guardar_	# Salta a guardar si el 2aï¿½o > 1aï¿½o
-	jal cambio		# Si 2aï¿½o < 1aï¿½o (hacia atras en el tiempo) invierte sus valores
+	slti $t1, $t0, 0	# t1=0 2anyo>1anyo	t1=1anyo>2anyo
+	bne $t1, 1, guardar_	# Salta a guardar si el 2anyo > 1anyo
+	jal _cambio		# Si 2anyo < 1anyo (hacia atras en el tiempo) invierte sus valores
 	
 guardar_:
-	jal guardar 		# Guarda en memoria 'pri_dir' la pri_dir fecha y en 'seg_dir' la segunda fecha
+	jal _guardar 		# Guarda en memoria 'pri_dir' la pri_dir fecha y en 'seg_dir' la segunda fecha
 
-primero:add $s3, $zero, 31	# s3/s5 carga 31dic del aï¿½o la fecha menor
+primero:add $s3, $zero, 31	
 	add $s4, $zero, 12
 	add $s5, $zero, $s2
 	add $t3,$zero,0		# Establece $t3=0
-	#la $a1, mem_todo 
-	#sw $s2,0($a1)
 	add $a2, $zero,$s2
 	
 	j correcto		# salta a correcto, que ira con jal a calculo
@@ -94,7 +92,7 @@ segundo:move $t4,$s7		#$t4= dias de $s7
 
 correcto1:
 	add $t3,$zero,2	# Si las fechas son del mismo aï¿½o $t3 = 2
-correcto:jal calculo	
+correcto:jal _calculo	
 	
 	beq $t3,0,segundo	# $t3 = 0 Si son fechas de distinto aï¿½o
 	add $s7,$s7,$t4		# (dias de la fecha menor a diciembre) + (dias de enero a la fecha mayor)
@@ -109,16 +107,11 @@ intermedio:
 bucle_imprimir:
 	add $s2,$s2,1
 	add $t3,$t3,1
-	jal bisiestoTF
-	bne $t3,$t0,bucle_imprimir
-#--------------- Aqui acaba el primer ejercicio $s7=resultado ---------------------	
-
+	jal _bisiestoTF
+	bne $t3,$t0, bucle_imprimir
 	
+# FIN DEL PRIMER APARTADO DE LA ENTREGA: El resultado esta en $s7	
 
-
-
-
-	
 imprimir:
 	beq $t8,1,ej2.1
 	beq $t8,2,ej2.2
@@ -136,8 +129,6 @@ imprimir:
 	li $v0,4
 	syscall
 
-
-#-------------- EJERCICIO 2 -------------------------
 ej2.1:	add $s0,$zero,15
 	add $s1,$zero,10
 	add $s2,$zero,1582
@@ -148,22 +139,18 @@ ej2.1:	add $s0,$zero,15
 ej2.2:	add $t0, $zero, $s7 #Guardamos en t0 los dias que han pasado desde el 15/10/1582
 	div $s7,$s7,7
 	mfhi $s7
-	jal dime_semana_o_mes 
+	jal _dime_semana_o_mes 
 	
 	
+# FIN DEL APARTADO 2 DE LA ENTREGA.
 	
-	
-	
-
-#--------------- EJERCICIO 3 ------------------------
-ej3.3:	
-	# Pasamos el año a s2, que es el que comprueba en la funcion bisiesto
-	# y ponemos $s7 a 0. Si es bisiesto este año, lo pondrá a 1.
+	# Pasamos el anyo a s2, que es el que comprueba en la funcion _bisiesto
+	# y ponemos $s7 a 0. Si es _bisiesto este anyo, lo pondrá a 1.
 	# pasamos el resultado de s7 a t4
 	
 	add $s2, $zero, $s5
 	add $s7, $zero, $zero
-	jal bisiesto
+	jal _bisiesto
 	move $t4, $s7
 	
 	# imprimimos decoracion del calendario
@@ -174,16 +161,16 @@ ej3.3:
 	li $v0,4
 	syscall
 
+	# En t0 estan los dias que han pasado desde 15/10/1582 a la fecha mayor
+	jal _calendario
 	
-	#En t0 estan los dias que han pasado desde 15/10/1582 a la fecha mayor
-	jal calendario
-	
-	#Se acabo el programa
+# FIN DE LA ENTREGA.
+
 	li $v0,10
 	syscall
 	
-#--------------------------------------------------------------------------------
-calendario:
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+_calendario:
 	add $a0 $zero 10
 	li $v0 11
 	syscall
@@ -204,7 +191,7 @@ ajuste: sub $t0, $t0, 2
 	add $a1, $a1, $s4
 	lb $t7, 0($a1) 		# Guardamos en t7 los dias que puede tener ese mes
 	bne $t7, 28, no_feb	# Si no es febrero saltamos
-	add $t7, $t7, $t4	# Le sumamos un dia si este año es bisiesto, si no lo es, $t4 era 0
+	add $t7, $t7, $t4	# Le sumamos un dia si este año es _bisiesto, si no lo es, $t4 era 0
 no_feb:	add $t2, $zero, $zero 	#t2 sera el contador dia
 	add $t5, $zero, $zero 	#t5 contador semana	
 	
@@ -260,25 +247,8 @@ sig2.2:
 fin_cal:
 	jr $ra
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 #------------------------------------------------------------
-calculo:addi $sp,$sp,-4		# 1er bucle: Guarda la posicion de memoria para luego poder volver a correcto
+_calculo:addi $sp,$sp,-4		# 1er bucle: Guarda la posicion de memoria para luego poder volver a correcto
 	sw $ra,0($sp)	
 	sub $t1, $s1, $s4	# 1er bucle: $t1 = diferencia del mes a diciembre
 	slt $t2, $s1, $s4	# 1er bucle: $t2 = 1 si la fecha no es diciembre
@@ -287,12 +257,12 @@ calculo:addi $sp,$sp,-4		# 1er bucle: Guarda la posicion de memoria para luego p
 	j inicio
 	
 comprueba_dia:			
-	slt $t1, $s0, $s3	# 1er bucle: $t1 = 1 si el dia es menor que 31
-	beq $t1, 1, inicio	# 1er bucle: Si es menor que 31, va a inicio
-	move $t1, $s0		# 1er bucle: Si es 31, se cambian de posicion.
-	move $s0, $s3		# $s0 = 31	$s3 = dia de la fecha
+	slt $t1, $s0, $s3	
+	beq $t1, 1, inicio	
+	move $t1, $s0	
+	move $s0, $s3		
 	move $s3, $t1
-	j inicio		# Se salta a inicio
+	j inicio		
 
 cambia_todo:
 	la $a0, temp
@@ -309,7 +279,7 @@ inicio:	la $a0,dias		# $a0 = vector de los dias del mes
 	move $s6,$s1		# $s6 = mes de la fecha
 	add $s6, $s6,-1		# $s6 = mes de la fecha - 1
 	
-bucle:	lb $t0,0($a0)		# Bucle que suma en $s7 los dï¿½as de los meses que van
+bucle:	lb $t0,0($a0)		# Bucle que suma en $s7 los dias de los meses que van
 				# desde [fecha, diciembre)
 	add $s7,$s7,$t0
 	add $a0,$a0,1
@@ -319,31 +289,33 @@ bucle:	lb $t0,0($a0)		# Bucle que suma en $s7 los dï¿½as de los meses que van
 	sub $s7,$s7,$s0		# Le resta a $s7 31 dias
 	la $a0, dias
 	add $a0, $a0, $s4	# $a0 = direccion de dias del mes de la fecha
-	lb $t0, 0($a0)		# $t0 = dias del mes de la fecha
-	sub $t0, $t0,$s3	# $t0 = dias totales del mes de la fecha - dia de la fecha
-	sub $s7, $s7, $t0	# $s7 = dias de la fecha + [mes siguiente fecha, Noviembre] - 31
+	lb $t0, 0($a0)		
+	sub $t0, $t0,$s3	
+	sub $s7, $s7, $t0	# $s7 = dias
 	
-salir:	jal bisiesto
+salir:	jal _bisiesto
 	lw $ra,0($sp)
 	add $sp,$sp,4
 	jr $ra
-#---------------------------------------------
-bisiesto:div $t7,$s2,4		# $t7 = aï¿½opequeï¿½o / 4
-	mfhi $t5		# $t5 = aï¿½opequeï¿½o % 4
-	div $t7,$s2,100		# $t7 = aï¿½opequeï¿½o / 10
-	mfhi $t6		# $t6 = aï¿½opequeï¿½o % 10
-	beq $t5,0,puede		# $t5 = 0: Puede ser bisiesto
+#--------------------------------------------------
+_bisiesto:
+	
+	div $t7,$s2,4		# $t7 = anyopequenyo / 4
+	mfhi $t5		# $t5 = anyopequenyo % 4
+	div $t7,$s2,100		# $t7 = anyopequenyo / 10
+	mfhi $t6		# $t6 = anyopequenyo % 10
+	beq $t5,0,puede		# $t5 = 0: Puede ser _bisiesto
 	j segunda		
 puede:	bne $t6,0,si
 segunda:div $t7,$s2, 400	
 	mfhi $t5
-	bne $t5, 0, no		# Si es divisible entre 400, es bisiesto
+	bne $t5, 0, no		# Si es divisible entre 400, es _bisiesto
 	slti $t9, $s1, 3	# $t9 = 1 si  no ha llegado a marzo = feb tiene un dia mas
 	beq $t9, 0, no
 si:	add $s7, $s7,1		# Si es divisible entre 400, se le suma un dia
 no:	jr $ra
 #---------------------------------------------
-cambio:	la $a0, temp
+_cambio:	la $a0, temp
 	sw $s0,0($a0)
 	sw $s1,4($a0)
 	sw $s2,8($a0)
@@ -355,7 +327,7 @@ cambio:	la $a0, temp
 	lw $s5,8($a0)
 	jr $ra
 #---------------------------------------------
-guardar:la $a0, pri_dir
+_guardar:la $a0, pri_dir
 	sw $s0,0($a0)
 	sw $s1,4($a0)
 	sw $s2,8($a0)
@@ -365,16 +337,16 @@ guardar:la $a0, pri_dir
 	sw $s5,8($a0)
 	jr $ra
 #---------------------------------------------
-guardar_anio:
+_guardar_anio:
 	la $a0, mem_todo
 	sw $s2,0($a0)
 	sw $s5,4($a0)
 	jr $ra
 #---------------------------------------------
-bisiestoTF:div $t7,$s2,4		# $t7 = aï¿½opequeï¿½o / 4
-	mfhi $t5		# $t5 = aï¿½opequeï¿½o % 4
-	div $t7,$s2,100		# $t7 = aï¿½opequeï¿½o / 10
-	mfhi $t6		# $t6 = aï¿½opequeï¿½o % 10
+_bisiestoTF:div $t7,$s2,4	# $t7 = anyopequenyo / 4
+	mfhi $t5		# $t5 = anyopequenyo % 4
+	div $t7,$s2,100		# $t7 = anyopequenyo / 10
+	mfhi $t6		# $t6 = anyopequenyo % 10
 	beq $t5,0,puedeTF	# $t5 = 0: Puede ser bisiesto
 	j segundaTF		
 puedeTF:bne $t6,0,siTF
@@ -386,7 +358,7 @@ siTF:	add $s7, $s7,366		# Si es divisible entre 400, se le suma un dia
 noTF:	add $s7,$s7,365
 	jr $ra
 #----------------------------------------------
-tomar_entrada:
+_tomar_entrada:
 	beq $t1,1,segunda_entrada
 primera_entrada:
 	la $a0, entrada1
@@ -414,7 +386,11 @@ salir_entrada:
 	sw $t7,0($a1)
 	jr $ra
 #----------------------------------------------
-comprobacion:
+_comprobacion:
+	addi $sp,$sp,-4		# 1er bucle: Guarda la posicion de memoria para luego poder volver a correcto
+	sw $ra,0($sp)	
+
+
 	slti $t9,$s0,1
 	beq $t9,1,incorrecto
 	slti $t9,$s3,1
@@ -428,14 +404,35 @@ comprobacion:
 	slti $t9,$s4,13
 	bne $t9,1,incorrecto
 	
+	add $s7, $zero, $zero
+	jal _bisiesto
+	lw $ra,0($sp)
+	
+	
 	la $a0, dias
 	add $a0, $a0, $s1
 	lb $t0, 0($a0)
+	bne $t0, 28, no_feb1
+	add $t0, $t0, $s7
+no_feb1:
 	slt $t9,$t0,$s0
 	beq $t9,1,incorrecto
+	
+	
+	add $s7, $zero, $zero
+	add $s6, $zero, $zero
+	move $s6 $s2
+	move $s2 $s5
+	jal _bisiesto
+	lw $ra,0($sp)
+	move $s2 $s6
+	
 	la $a0, dias
 	add $a0, $a0, $s4
 	lb $t0, 0($a0)
+	bne $t0, 28, no_feb2
+	add $t0, $t0, $s7
+no_feb2:
 	slt $t9,$t0,$s3
 	beq $t9,1,incorrecto
 	jr $ra
@@ -447,7 +444,7 @@ incorrecto:
 	li $v0,10
 	syscall
 #-----------------------------------------
-dime_semana_o_mes:
+_dime_semana_o_mes:
 	add $t3, $zero,0
 	li $v0,11
 	add $a0,$zero,10
